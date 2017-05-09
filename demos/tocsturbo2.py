@@ -26,7 +26,7 @@ def createGraph(data, base):
     ar = area.T(size=(tocslib.width, tocslib.height),
                 x_range = (0.5,3.5),
                 x_axis = axis.X(label="/bNumber of nodes with fast disks",
-                                tic_interval=lambda x,y: range(1, 3, 1)),
+                                tic_interval=lambda x,y: list(range(1, 3, 1))),
                 y_axis = axis.Y(label="/bMessages//second", 
                                 label_offset=(tocslib.xlabel_offset, None)),
                 legend=legend.T())

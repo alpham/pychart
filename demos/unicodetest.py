@@ -23,6 +23,6 @@ def show_text(str):
     can.show(x + 200, y, "/12/C" + font.quotemeta(str))
     y -= 20
 
-show_text(unicode('Zürich', 'utf-8'))
-show_text(unicode('X äöü Y', 'utf-8'))
+show_text(str('Zürich', 'utf-8'))
+show_text(str('X äöü Y', 'utf-8'))
 

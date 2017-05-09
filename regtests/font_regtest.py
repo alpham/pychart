@@ -9,10 +9,10 @@ class TestFonts(unittest.TestCase):
         got_exception = False
         try:
             self.__canvas.show(0, 0, s)
-        except font.FontException, e:
-            print "Got font exception [%s] for [%s] (this is expected)" % (e, s)
+        except font.FontException as e:
+            print("Got font exception [%s] for [%s] (this is expected)" % (e, s))
             got_exception = True
-        self.failUnless(got_exception)
+        self.assertTrue(got_exception)
     def setUp(self):
         self.__canvas = canvas.init("/dev/null", "pdf")
     def test(self):

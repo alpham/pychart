@@ -13,13 +13,13 @@ class TestChartObject(unittest.TestCase):
             b.label = 10
         except TypeError:
             ok = True
-        self.failUnless(ok)
+        self.assertTrue(ok)
         ok = False
         try:
             b.foobar = 999
         except Exception:
             ok = True
-        self.failUnless(ok)
+        self.assertTrue(ok)
         
     def runTest(self):
         self.test()

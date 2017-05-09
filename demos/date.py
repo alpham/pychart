@@ -16,7 +16,7 @@ import datetime
 from pychart import *
 
 def date_to_ordinal(s):
-    month, day, year = map(int, s.split("/"))
+    month, day, year = list(map(int, s.split("/")))
     return datetime.date(year, month, day).toordinal()
 
 def format_date(ordinal):

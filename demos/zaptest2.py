@@ -40,8 +40,7 @@ class zap_x_coord(linear_coord.T):
                 newtics.append(item)
         return newtics
 
-data = map(lambda x: (x, random.random() * 2 * x, random.random() * 4 * x),
-           range(1,50))
+data = [(x, random.random() * 2 * x, random.random() * 4 * x) for x in range(1,50)]
 
 ar = area.T(x_axis = axis.X(label = "X"),
             x_coord = zap_x_coord(),

@@ -26,14 +26,14 @@ class TestChartData(unittest.TestCase):
             if os.WEXITSTATUS(os.system("cmp %s %s" % (path, path2))) != 0:
                 self.fail("write_csv failed. Results are in %s and %s"
                           % (path, path2))
-            print "Wrote on ", path, path2
+            print("Wrote on ", path, path2)
             
             data2 = chart_data.read_csv(path, "%d,%d")
-            self.failUnless(data == data2)
+            self.assertTrue(data == data2)
 
             fd = open(path2)
             data2 = chart_data.read_csv(fd, "%d,%d")
-            self.failUnless(data == data2)
+            self.assertTrue(data == data2)
             
         finally:
             os.unlink(path)
