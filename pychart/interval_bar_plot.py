@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Jockey is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -24,36 +24,36 @@ from .pychart_types import *
 fill_styles = None
 
 _keys = {
-    "direction" : (StringType, "vertical",
-                   """The direction the growth of the bars. The value is either 'horizontal'
+    "direction": (str, "vertical",
+                  """The direction the growth of the bars. The value is either 'horizontal'
                    or 'vertical'."""),
-    "data" : (AnyType, None, """Specifes data points. Unlike other types
+    "data": (AnyType, None, """Specifes data points. Unlike other types
     of charts, the "hcol"th column of the data must be a sequence of
     numbers, not just a single number. See also the description of
     "hcol"."""
-    ),
+             ),
     "data_label_offset": (CoordType, (0, 5),
                           "The location of data labels relative to the sample point. See also attribute data_label_format."),
-    
+
     "data_label_format": (FormatType, None, """The
                           format string for the label displayed besides each
                           bar.  It can be a `printf' style format
                           string, or a two-parameter function that
                           takes (x,y) values and returns a string. """
                           + pychart_util.string_desc),
-    
-    "label": (StringType, "???", pychart_util.label_desc), 
-    "bcol" : (IntType, 0,
-              """Specifies the column from which base values (i.e., X values when attribute "direction" is "vertical", Y values otherwise) are extracted.
+
+    "label": (str, "???", pychart_util.label_desc),
+    "bcol": (int, 0,
+             """Specifies the column from which base values (i.e., X values when attribute "direction" is "vertical", Y values otherwise) are extracted.
 The
               combination of "data", "bcol", and "hcol" attributes defines
               the set of boxes drawn by this chart.
               See also the descriptions of the 'bcol' and 'data' attributes.
               """),
-    "hcol": (IntType, 1,
+    "hcol": (int, 1,
              """The column from which the base and height of
              bars are extracted. See the below example:
-              
+
 @example
               d = [[5,[10,15,22]], [7,[22,23,5,10]], [8,[25,3]]]
               p = interval_bar_plot.T(data = d, bcol = 0, hcol = 1)
@@ -70,19 +70,19 @@ The
               from attributes "line_styles" and
               "fill_styles".
              """),
-    "line_styles": (ListType, [line_style.default, None],
+    "line_styles": (list, [line_style.default, None],
                     """The list of line styles for bars.
                     The style of each bar is chosen in a round-robin fashion, if the
                     number of elements in "line_styles" is smaller than
                     actual number of boxes."""),
-    "fill_styles": (ListType, [lambda: next(fill_styles), None],
+    "fill_styles": (list, [lambda: next(fill_styles), None],
                     """List of fill styles for bars.
                     The style of each bar is chosen in a round-robin fashion, if the
                     number of elements in "line_styles" is smaller than
                     actual number of boxes.
                     If this attribute is omitted,
                     a style is picked from standard styles round-robin. <<fill_style>>."""),
-    "cluster": (TupleType, (0, 1), """This attribute is used to
+    "cluster": (tuple, (0, 1), """This attribute is used to
     cluster multiple bar plots side by side in a single chart.
     The value should be a tuple of two integers. The second value should be equal to the total number of bar plots in the chart. The first value should be the relative position of this chart; 0 places this chart the leftmost, and N-1
     (where N is the 2nd value of this attribute) places this chart the rightmost. Consider the below example:
@@ -108,31 +108,36 @@ The
     clustered boxes. The unit is points."""),
     "stack_on": (AnyType, None,
                  "The value must be either None or bar_plot.T. If not None, bars of this plot are stacked on top of another bar plot."),
-    }
+}
+
 
 class T(chart_object.T):
     __doc__ = bar_plot_doc.doc
     keys = _keys
+
     def check_integrity(self):
         chart_object.T.check_integrity(self)
+
     def get_value(self, bval):
         for pair in self.data:
             if pair[self.bcol] == bval:
                 return pair[self.hcol]
-	raise ValueError(str(bval) + ": can't find the xval")
+        raise ValueError(str(bval) + ": can't find the xval")
 
     def __get_data_range(self, col):
         gmin = 99999999
         gmax = -99999999
         for item in self.data:
             seq = item[col]
-            if seq[0] < gmin: gmin = seq[0]
+            if seq[0] < gmin:
+                gmin = seq[0]
             max = 0
             for v in seq:
                 max += v
-            if max > gmax: gmax = max
+            if max > gmax:
+                gmax = max
         return (gmin, gmax)
-    
+
     def get_data_range(self, which):
         if self.direction == 'vertical':
             if which == 'X':
@@ -150,46 +155,52 @@ class T(chart_object.T):
         line_style = self.line_styles[nth % len(self.line_styles)]
         fill_style = self.fill_styles[nth % len(self.fill_styles)]
         return (line_style, fill_style)
-    
+
     def draw_vertical(self, ar, can):
         for pair in self.data:
             xval = pair[self.bcol]
             yvals = pychart_util.get_sample_val(pair, self.hcol)
-            
-            if None in (xval, yvals): continue
+
+            if None in (xval, yvals):
+                continue
 
             ybot = 0
-            
-            totalWidth = (self.width+self.cluster_sep) * self.cluster[1] - self.cluster_sep
-            first_x = ar.x_pos(xval) - totalWidth/2.0
-            this_x = first_x + (self.width+self.cluster_sep) * self.cluster[0] - self.cluster_sep
+
+            totalWidth = (self.width + self.cluster_sep) * \
+                self.cluster[1] - self.cluster_sep
+            first_x = ar.x_pos(xval) - totalWidth / 2.0
+            this_x = first_x + (self.width + self.cluster_sep) * \
+                self.cluster[0] - self.cluster_sep
 
             cury = yvals[0]
             n = 0
-            
+
             for yval in yvals[1:]:
                 (line_style, fill_style) = self.get_style(n)
                 can.rectangle(line_style, fill_style,
-                              this_x, ar.y_pos(cury), this_x+self.width, 
+                              this_x, ar.y_pos(cury), this_x + self.width,
                               ar.y_pos(cury + yval))
                 cury += yval
                 n += 1
-                
+
                 if self.data_label_format:
-                    can.show(this_x + self.width/2.0 + self.data_label_offset[0],
+                    can.show(this_x + self.width / 2.0 + self.data_label_offset[0],
                              ar.y_pos(cury) + self.data_label_offset[1],
                              "/hC" + pychart_util.apply_format(self.data_label_format, (pair[self.bcol], pair[self.hcol]), 1))
-	    
+
     def draw_horizontal(self, ar, can):
         for pair in self.data:
             yval = pair[self.bcol]
             xvals = pychart_util.get_sample_val(pair, self.hcol)
 
-            if None in (xvals, yval): continue
+            if None in (xvals, yval):
+                continue
 
-            totalWidth = (self.width+self.cluster_sep) * self.cluster[1] - self.cluster_sep
-            first_y = ar.y_pos(yval) - totalWidth/2.0
-            this_y = first_y + (self.width+self.cluster_sep) * self.cluster[0] - self.cluster_sep
+            totalWidth = (self.width + self.cluster_sep) * \
+                self.cluster[1] - self.cluster_sep
+            first_y = ar.y_pos(yval) - totalWidth / 2.0
+            this_y = first_y + (self.width + self.cluster_sep) * \
+                self.cluster[0] - self.cluster_sep
 
             curx = xvals[0]
             n = 0
@@ -200,19 +211,19 @@ class T(chart_object.T):
                               ar.x_pos(curx + xval), this_y + self.width)
                 curx += xval
                 n += 1
-                
+
     def get_legend_entry(self):
         if self.label:
             return legend.Entry(line_style=self.line_styles[0],
                                 fill_style=self.fill_styles[0],
                                 label=self.label)
         return None
-        
+
     def draw(self, ar, can):
         assert chart_object.T.check_integrity(self)
         can.clip(ar.loc[0], ar.loc[1],
                  ar.loc[0] + ar.size[0], ar.loc[1] + ar.size[1])
-            
+
         if self.direction == "vertical":
             self.draw_vertical(ar, can)
         else:
@@ -220,9 +231,10 @@ class T(chart_object.T):
 
         can.endclip()
 
+
 def init():
     global fill_styles
     fill_styles = fill_style.standards.iterate()
-    
-theme.add_reinitialization_hook(init)
 
+
+theme.add_reinitialization_hook(init)

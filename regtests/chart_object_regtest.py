@@ -5,6 +5,7 @@ sys.path.append('..')
 from pychart import *
 
 class TestChartObject(unittest.TestCase):
+
     def test(self):
         b = bar_plot.T()
         b.label = "unknown"
@@ -20,8 +21,8 @@ class TestChartObject(unittest.TestCase):
         except Exception:
             ok = True
         self.assertTrue(ok)
-        
+
     def runTest(self):
         self.test()
 if __name__ == '__main__':
-    unittest.main()        
+    unittest.main()

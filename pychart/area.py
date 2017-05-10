@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Jockey is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -29,7 +29,7 @@ _dummy_legend = legend.T()
 
 def range_doc(t):
     u = t.upper()
-    
+
     return """Specifies the range of %s values that are displayed in the
     chart. IF the value is None, both the values are computed
     automatically from the samples.  Otherwise, the value must be a
@@ -38,7 +38,7 @@ def range_doc(t):
     samples. For example, if %s_range = (None,5), then the minimum %s
     value is computed automatically, but the maximum %s value is fixed
     at 5.""" % (u, t, u, u)
-    
+
 _keys = {
     "loc" : (CoordType, (0,0),
              """The location of the bottom-left corner of the chart.
@@ -87,7 +87,7 @@ _keys = {
                         "The vertical grid-line interval. See also x_grid_interval"),
     "x_grid_over_plot": (bool, False,
                       "If True, grid lines are drawn over plots. Otherwise, plots are drawn over grid lines."),
-    "y_grid_over_plot": (IntType, False, "See x_grid_over_plot."),
+    "y_grid_over_plot": (int, False, "See x_grid_over_plot."),
     "legend": (legend.T, _dummy_legend, "The legend of the chart.",
                """a legend is by default displayed
                in the right-center of the chart. If you don't want to draw
@@ -111,7 +111,7 @@ class T(chart_object.T):
         off = self.x_coord.get_canvas_pos(self.size[0], xval,
                                           self.x_range[0], self.x_range[1])
         return self.loc[0] + off
-    
+
     def y_pos(self, yval):
         "Return the y position (on the canvas) corresponding to YVAL."
         off = self.y_coord.get_canvas_pos(self.size[1], yval,
@@ -161,11 +161,11 @@ class T(chart_object.T):
             return ((0,0), 1)
 
         r = r or (None, None)
-        
+
         if len(self.__plots) == 0:
             raise ValueError("No chart to draw, and no data range specified.\n");
         dmin, dmax = 999999, -999999
- 
+
         for plot in self.__plots:
             this_min, this_max = plot.get_data_range(which)
             dmin = min(this_min, dmin)
@@ -188,22 +188,22 @@ class T(chart_object.T):
 
         if can == None:
             can = canvas.default_canvas()
-            
+
         assert self.check_integrity()
-        
+
         for plot in self.__plots:
             plot.check_integrity()
-            
+
         self.x_range, self.x_grid_interval = \
                       self.__get_data_range(self.x_range, 'X',
                                             self.x_coord,
                                             self.x_grid_interval)
-            
+
         self.y_range, self.y_grid_interval = \
                       self.__get_data_range(self.y_range, 'Y',
                                             self.y_coord,
                                             self.y_grid_interval)
-        
+
         can.rectangle(self.border_line_style, self.bg_style,
                       self.loc[0], self.loc[1],
                       self.loc[0] + self.size[0], self.loc[1] + self.size[1])
@@ -223,9 +223,9 @@ class T(chart_object.T):
 
         for plot in self.__plots:
             plot.draw(self, can)
-            
+
         can.endclip()
-            
+
         if self.x_grid_over_plot:
             self.__draw_x_grid_and_axis(can)
         if self.y_grid_over_plot:
@@ -233,7 +233,7 @@ class T(chart_object.T):
 
         if self.legend == _dummy_legend:
             self.legend = legend.T()
-            
+
         if self.legend:
             legends = []
             for plot in self.__plots:

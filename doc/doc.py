@@ -15,19 +15,22 @@ ftype = "png"
 pychart_dir = ".."
 
 if opt.ps:
-    ftype="pdf"
+    ftype = "pdf"
 elif opt.pdf:
-    ftype="eps"
+    ftype = "eps"
 if opt.pychart_dir:
     pychart_dir = opt.pychart_dir
+
 
 def resubfunc(mo):
     typename = re.sub("_", "-", mo.group(1))
     return "\\xref{module-%s}" % typename
 
+
 def xxx(mo):
     xx = "var"
     return "\\" + xx + "{" + mo.group(1) + "}"
+
 
 def format_doc_string(str):
     str = re.sub("<<([^>]+)>>", resubfunc, str)
@@ -45,6 +48,7 @@ def format_doc_string(str):
     str = re.sub("@cindex ([^\n]+)", "\\index{\\1}", str)
     return str
 
+
 def outputClassAttrs(moduleName, className):
     x = pychart.doc_support.modules[moduleName]
     v = x[className]
@@ -59,17 +63,19 @@ def outputClassAttrs(moduleName, className):
 
         print("\\begin{memberdesc}{%s}\n\\textbf{Type:} %s" % (key, type_str))
         if False:
-            print("\\label{%s.%s.%s}" % (moduleName.replace("_","-"),
-                                         className.replace("_","-"),
+            print("\\label{%s.%s.%s}" % (moduleName.replace("_", "-"),
+                                         className.replace("_", "-"),
                                          key.replace("_", "-")))
-	mm = re.match("(.*)\\.T$", str(type_str))
-	if mm:
-	    print("(\\pxref{module-%s})" % re.sub("_", "-", mm.group(1)))
+        mm = re.match("(.*)\\.T$", str(type_str))
+        if mm:
+            print("(\\pxref{module-%s})" % re.sub("_", "-", mm.group(1)))
 
         if len(val) > 3:
-            print("\\textbf{Default:} %s." % format_doc_string(val[3]), end=' ')
+            print("\\textbf{Default:} %s." %
+                  format_doc_string(val[3]), end=' ')
         else:
-            print("\\textbf{Default:} %s." % format_doc_string(str(pychart.doc_support.stringify_value(val[1]))), end=' ')
+            print("\\textbf{Default:} %s." % format_doc_string(
+                str(pychart.doc_support.stringify_value(val[1]))), end=' ')
 
         print("")
         print("")
@@ -77,8 +83,9 @@ def outputClassAttrs(moduleName, className):
         if len(val) > 2:
             print(format_doc_string(val[2]))
 
-	print("\\end{memberdesc}")
-    #print "@end multitable";
+        print("\\end{memberdesc}")
+    # print "@end multitable";
+
 
 def copy_file(src, dest):
     sys.stderr.write("%s->%s\n" % (src, dest))
@@ -88,9 +95,11 @@ def copy_file(src, dest):
     infp.close()
     outfp.close()
 
+
 nodeNames = []
 nodeReplaces = []
 demoDir = pychart_dir + "/demos/"
+
 
 def scan_nodes(fp):
     global nodeNames
@@ -98,6 +107,7 @@ def scan_nodes(fp):
         mo_node = re.match("^@node ([^,]*)", line)
         if mo_node:
             nodeNames.append(re.compile("\\b(" + mo_node.group(1) + ")\\b"))
+
 
 def include_text_file(file):
     fp = open(file, "r")
@@ -118,6 +128,7 @@ def include_text_file(file):
         print(line, end=' ')
     fp.close()
     print("\\end{verbatim}")
+
 
 def format_doc(str):
     out = ""
@@ -145,6 +156,7 @@ def format_doc(str):
         out = out + "\n\end{verbatim}\n"
     return out
 
+
 fp = open(argv[0], "r")
 
 scan_nodes(fp)
@@ -153,12 +165,14 @@ fp.seek(0)
 
 while True:
     line = fp.readline()
-    if line == "": break
+    if line == "":
+        break
 
     mo7 = re.match("@xximage\\{(.*),\\}", line)
 
     line = line.replace("@chart{}", "PyChart")
-    line = line.replace("@shadow", "Parameter \\var{shadow} is either None or tuple (\\var{xdelta, ydelta, shadowstyle}). If non-None, a shadow of \\var{shadowstyle} (\\pxref{module-fill-style}) is drawn beneath the polygon at the offset (\\var{xdelta, ydelta}).")
+    line = line.replace(
+        "@shadow", "Parameter \\var{shadow} is either None or tuple (\\var{xdelta, ydelta, shadowstyle}). If non-None, a shadow of \\var{shadowstyle} (\\pxref{module-fill-style}) is drawn beneath the polygon at the offset (\\var{xdelta, ydelta}).")
 
     mo = re.match("^%%([^.]+)\\.(.*)", line)
     if mo:

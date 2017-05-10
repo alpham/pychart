@@ -14,6 +14,7 @@
 from . import pychart_types
 import types
 
+
 def set_defaults(cls, **dict):
     validAttrs = getattr(cls, "keys")
     for attr, val in list(dict.items()):
@@ -26,6 +27,7 @@ def set_defaults(cls, **dict):
         # 3: defaultValue document (optional)
         tuple[1] = val
         validAttrs[attr] = tuple
+
 
 class T(object):
     def init(self, args):
@@ -56,19 +58,24 @@ class T(object):
             # in 2.2, it's just a function that returns an integer.
             # To mask this difference, we handle the bool type specially.
             if value not in (True, False):
-                raise TypeError("%s: Expecting bool, but got %s" % (self, value))
+                raise TypeError("%s: Expecting bool, but got %s" %
+                                (self, value))
         elif typeval == str:
             if not isinstance(value, str) and not isinstance(value, str):
-                raise TypeError("%s: Expecting a string, but got %s" % (self, value))
+                raise TypeError(
+                    "%s: Expecting a string, but got %s" % (self, value))
         elif isinstance(typeval, types.FunctionType):
             # user-defined check procedure
             error = typeval(*(value,))
             if error != None:
-                raise TypeError("%s: %s for attribute '%s', but got '%s'" % (self, error, item, value))
+                raise TypeError("%s: %s for attribute '%s', but got '%s'" % (
+                    self, error, item, value))
         elif isinstance(value, typeval):
             pass
         else:
-            raise TypeError("%s: Expecting type %s, but got %s (attr=%s, %s)"  % (self, typeval, value,  item, self.keys[item]))
+            raise TypeError("%s: Expecting type %s, but got %s (attr=%s, %s)" % (
+                self, typeval, value,  item, self.keys[item]))
+
     def __init__(self, **args):
         self.init(args)
 

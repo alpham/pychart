@@ -84,11 +84,13 @@ author = None
 title = None
 aux_comments = None
 
+
 def parse_yesno(str):
     if str in ("yes", "true", "1"):
         return 1
     else:
         return 0
+
 
 def parse_bounding_box(arg):
     global delta_bounding_box, bounding_box
@@ -105,6 +107,7 @@ def parse_bounding_box(arg):
         else:
             bounding_box[i] = int(val)
 
+
 def adjust_bounding_box(bbox):
     """Adjust the bounding box as specified by user.
     Returns the adjusted bounding box.
@@ -118,6 +121,7 @@ def adjust_bounding_box(bbox):
         else:
             bbox[i] += delta_bounding_box[i]
     return bbox
+
 
 def parse_option(opt, arg):
     global use_color, scale_factor, margin
@@ -167,11 +171,12 @@ def parse_option(opt, arg):
     elif opt == "creation_date":
         creation_date = arg
     elif opt == "title":
-        title =arg
+        title = arg
     elif opt == "aux_comments":
         aux_comments = arg
     else:
         raise getopt.GetoptError("Unknown option: " + opt + " " + arg)
+
 
 if "PYCHART_OPTIONS" in os.environ:
     for opt in os.environ["PYCHART_OPTIONS"].split():
@@ -179,10 +184,13 @@ if "PYCHART_OPTIONS" in os.environ:
         parse_option(opt, arg)
 
 hooks = []
+
+
 def add_reinitialization_hook(proc):
     global hooks
     hooks.append(proc)
     proc()
+
 
 def usage():
     print("Usage: %s [options..]" % sys.argv[0])
@@ -196,6 +204,7 @@ def usage():
     --bbox=LEFT,BOTTOM,RIGHT,TOP: Specifies the amount of space (in PS points) to be left in the edges of the picture (default: -1,-1,+1,+1).
     """)
 
+
 def reinitialize():
     """This procedure must be called after setting variables in
     the |theme| module. This procedure propagates the new values of
@@ -203,7 +212,8 @@ def reinitialize():
     for proc in hooks:
         proc()
 
-def get_options(argv = None):
+
+def get_options(argv=None):
     """This procedure takes a list of command line arguments in <argv>
     and parses
     options. It returns the non-parsed portion of <argv>. Parameter

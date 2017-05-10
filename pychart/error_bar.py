@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Jockey is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -23,7 +23,7 @@ from .pychart_types import *
 
 __doc__ = """Pychart offers several styles of error bars. Some of them
 only displays the min/max confidence interval, while others can display
-quartiles in addition to min/max.""" 
+quartiles in addition to min/max."""
 
 class T(chart_object.T):
     keys = {}
@@ -156,4 +156,3 @@ bar5 = error_bar5()
 bar6 = error_bar6()
 
 standards = object_set.T(bar1, bar2, bar3, bar4, bar5, bar6)
-

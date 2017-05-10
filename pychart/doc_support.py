@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Jockey is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -17,6 +17,7 @@ import os.path
 from pychart import *
 from types import *
 from pychart.pychart_types import *
+from . import chart_object
 
 oldstdout = sys.stdout
 if os.path.exists("/dev/null"):
@@ -39,15 +40,16 @@ for mod in list(g.keys()):
                 dic[name] = v
         modules[mod] = dic
 
+
 def stringify_type(t):
     s = str(t)
     if t == AnyType:
         return "any"
     if t == ShadowType:
         return "(xoff,yoff,fill)"
-    elif re.search("NumberType", s):    
+    elif re.search("NumberType", s):
         return "number"
-    elif re.search("UnitType", s):    
+    elif re.search("UnitType", s):
         return 'length in points (\\xref{unit})'
     elif re.search("CoordType", s):
         return "(x,y) or None"
@@ -74,31 +76,35 @@ def stringify_type(t):
         return mo.group(1)
     return s
 
+
 def stringify_value(val):
     t = type(val)
-    if t == StringType:
+    if t == str:
         return '"' + val + '"'
     if t == bool:
-        if val: return "True"
-        else: return "False"
-        
-    if t in (IntType, LongType, FloatType):
+        if val:
+            return "True"
+        else:
+            return "False"
+
+    if t in (int, float):
         return str(val)
     if val == None:
         return "None"
-    if type(val) == ListType:
+    if type(val) == list:
         return list(map(stringify_value, val))
     for pair in values:
         if pair[0] == val:
             return pair[1]
     return str(val)
 
+
 def break_string(name):
     max_len = 10
     if len(name) < max_len:
         return name
-    
-    name = re.sub("(\\d\\d)([^\\d])", "\\1-\n\\2", name) 
+
+    name = re.sub("(\\d\\d)([^\\d])", "\\1-\n\\2", name)
     name = re.sub("black(.)", "black-\n\\1", name)
 
     elems = name.split("\n")
@@ -109,9 +115,9 @@ def break_string(name):
             if len(elem) < max_len:
                 continue
             broken = 1
-            elem1 = elem[0:len(elem)/2]
-            elem2 = elem[len(elem)/2:]
-            elems[i:i+1] = [elem1, elem2]
+            elem1 = elem[0:len(elem) / 2]
+            elem2 = elem[len(elem) / 2:]
+            elems[i:i + 1] = [elem1, elem2]
             break
         if not broken:
             break

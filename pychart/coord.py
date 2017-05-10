@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Jockey is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -11,6 +11,8 @@
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+
+
 class T(object):
     def get_canvas_pos(self, size, val, min, max):
         """
@@ -27,11 +29,11 @@ class T(object):
         area.T.x_coord.get_canvas_pos(size = 200, val = 120, min = 100, max = 150).
         """
         raise Exception
-    
+
     def get_tics(self, min, max, interval):
         """Generate the list of places for drawing tick marks."""
         raise Exception
-    
+
     def get_min_max(self, min, max, interval):
         """Compute the min/max values to be displayed in the chart.
         Parameters ``min`` and ``max`` are the minimum and maximum values
@@ -45,5 +47,5 @@ class T(object):
         dinterval should be ``interval`` if it is non-None. Otherwise, the
         method must compute some good value.
         """
-        
+
         raise Exception

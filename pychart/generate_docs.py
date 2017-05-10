@@ -35,6 +35,7 @@ from . import tick_mark
 indent = 4
 max_line_len = 64
 
+
 def format_paragraph(fp, str):
     line_len = indent
     fp.write(" " * indent)
@@ -45,6 +46,7 @@ def format_paragraph(fp, str):
             line_len = indent
         fp.write(word + " ")
         line_len += len(word) + 1
+
 
 def format_string(fp, str):
     str = re.sub("<<([^>]+)>>", "See also pychart.\\1", str)
@@ -74,7 +76,8 @@ def format_string(fp, str):
     in_fp.close()
     os.remove(fname)
 
-def generate_doc(c, name, suffix="", append = 0):
+
+def generate_doc(c, name, suffix="", append=0):
     if append:
         fp = open(name + "_doc.py", "a+")
     else:
@@ -83,20 +86,21 @@ def generate_doc(c, name, suffix="", append = 0):
 
     fp.write("doc" + suffix + "=\"\"\"Attributes supported by this class are:\n")
     for key in list(c.keys.keys()):
-            val=c.keys[key]
-            desc = ""
-            defaultValDesc = None
-            if len(val) > 3:
-                desc = val[3]
-            if len(val) > 4:
-                defaultValDesc = val[4]
+        val = c.keys[key]
+        desc = ""
+        defaultValDesc = None
+        if len(val) > 3:
+            desc = val[3]
+        if len(val) > 4:
+            defaultValDesc = val[4]
 
-            fp.write(key + "(type:" + doc_support.stringify_type(val[0]))
-            if defaultValDesc:
-                fp.write(") default:" + defaultValDesc)
-            else:
-                fp.write(") default=" + str(doc_support.stringify_value(val[2])) + ".\n")
-            format_string(fp, desc)
+        fp.write(key + "(type:" + doc_support.stringify_type(val[0]))
+        if defaultValDesc:
+            fp.write(") default:" + defaultValDesc)
+        else:
+            fp.write(") default=" +
+                     str(doc_support.stringify_value(val[2])) + ".\n")
+        format_string(fp, desc)
     fp.write("\"\"\"\n\n")
     fp.close()
 
@@ -109,7 +113,7 @@ generate_doc(bar_plot.T, "bar_plot")
 generate_doc(line_plot.T, "line_plot")
 generate_doc(pie_plot.T, "pie_plot")
 generate_doc(color.T, "color")
-generate_doc(error_bar.error_bar1, "error_bar","_1")
+generate_doc(error_bar.error_bar1, "error_bar", "_1")
 generate_doc(error_bar.error_bar2, "error_bar", "_2", 1)
 generate_doc(error_bar.error_bar3, "error_bar", "_3", 1)
 generate_doc(error_bar.error_bar4, "error_bar", "_4", 1)

@@ -81,6 +81,7 @@ import types
 # In the bottleneck of this application it's appropriate to abbreviate
 # names to increase speed.
 
+
 class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
     def __init__(self, statements, excluded, suite_spots):
         compiler.visitor.ASTVisitor.__init__(self)
@@ -88,19 +89,19 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         self.excluded = excluded
         self.suite_spots = suite_spots
         self.excluding_suite = 0
-        
+
     def doRecursive(self, node):
         self.recordNodeLine(node)
         for n in node.getChildNodes():
             self.dispatch(n)
 
     visitStmt = visitModule = doRecursive
-    
+
     def doCode(self, node):
         if hasattr(node, 'decorators') and node.decorators:
             self.dispatch(node.decorators)
         self.doSuite(node, node.code)
-    
+
     visitFunction = visitClass = doCode
 
     def getFirstLine(self, node):
@@ -120,17 +121,17 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         for n in node.getChildNodes():
             lineno = max(lineno, self.getLastLine(n))
         return lineno
-    
+
     def doStatement(self, node):
         self.recordLine(self.getFirstLine(node))
 
     visitAssert = visitAssign = visitAssTuple = visitDiscard = visitPrint = \
         visitPrintnl = visitRaise = visitSubscript = visitDecorators = \
         doStatement
-    
+
     def recordNodeLine(self, node):
         return self.recordLine(node.lineno)
-    
+
     def recordLine(self, lineno):
         # Returns a bool, whether the line is included or excluded.
         if lineno:
@@ -146,17 +147,17 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
             # If this line is excluded, or suite_spots maps this line to
             # another line that is exlcuded, then we're excluded.
             elif lineno in self.excluded or \
-                 lineno in self.suite_spots and \
-                 self.suite_spots[lineno][1] in self.excluded:
+                    lineno in self.suite_spots and \
+                    self.suite_spots[lineno][1] in self.excluded:
                 return 0
             # Otherwise, this is an executable line.
             else:
                 self.statements[lineno] = 1
                 return 1
         return 0
-    
+
     default = recordNodeLine
-    
+
     def recordAndDispatch(self, node):
         self.recordNodeLine(node)
         self.dispatch(node)
@@ -167,7 +168,7 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
             self.excluding_suite = 1
         self.recordAndDispatch(body)
         self.excluding_suite = exsuite
-        
+
     def doPlainWordSuite(self, prevsuite, suite):
         # Finding the exclude lines for else's is tricky, because they aren't
         # present in the compiler parse tree.  Look at the previous suite,
@@ -175,17 +176,17 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         # first line are excluded, then we exclude the else.
         lastprev = self.getLastLine(prevsuite)
         firstelse = self.getFirstLine(suite)
-        for l in range(lastprev+1, firstelse):
+        for l in range(lastprev + 1, firstelse):
             if l in self.suite_spots:
                 self.doSuite(None, suite, exclude=l in self.excluded)
                 break
         else:
             self.doSuite(None, suite)
-        
+
     def doElse(self, prevsuite, node):
         if node.else_:
             self.doPlainWordSuite(prevsuite, node.else_)
-    
+
     def visitFor(self, node):
         self.doSuite(node, node.body)
         self.doElse(node.body, node)
@@ -210,24 +211,26 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
             if not a:
                 # It's a plain "except:".  Find the previous suite.
                 if i > 0:
-                    prev = node.handlers[i-1][2]
+                    prev = node.handlers[i - 1][2]
                 else:
                     prev = node.body
                 self.doPlainWordSuite(prev, h)
             else:
                 self.doSuite(a, h)
         self.doElse(node.handlers[-1][2], node)
-    
+
     def visitTryFinally(self, node):
         self.doSuite(node, node.body)
         self.doPlainWordSuite(node.body, node.final)
-        
+
     def visitGlobal(self, node):
         # "global" statements don't execute like others (they don't call the
         # trace function), so don't record their line numbers.
         pass
 
+
 the_coverage = None
+
 
 class coverage:
     error = "coverage error"
@@ -241,7 +244,7 @@ class coverage:
     # A dictionary with an entry for (Python source file name, line number
     # in that file) if that line has been executed.
     c = {}
-    
+
     # A map from canonical Python source file name to a dictionary in
     # which there's an entry for each line number that has been
     # executed.
@@ -265,22 +268,23 @@ class coverage:
         self.nesting = 0
         self.cstack = []
         self.xstack = []
-        self.relative_dir = os.path.normcase(os.path.abspath(os.curdir)+os.path.sep)
+        self.relative_dir = os.path.normcase(
+            os.path.abspath(os.curdir) + os.path.sep)
 
-    # t(f, x, y).  This method is passed to sys.settrace as a trace function.  
-    # See [van Rossum 2001-07-20b, 9.2] for an explanation of sys.settrace and 
+    # t(f, x, y).  This method is passed to sys.settrace as a trace function.
+    # See [van Rossum 2001-07-20b, 9.2] for an explanation of sys.settrace and
     # the arguments and return value of the trace function.
     # See [van Rossum 2001-07-20a, 3.2] for a description of frame and code
     # objects.
-    
-    def t(self, f, w, a):                                   #pragma: no cover
-        #print w, f.f_code.co_filename, f.f_lineno
+
+    def t(self, f, w, a):  # pragma: no cover
+        # print w, f.f_code.co_filename, f.f_lineno
         if w == 'line':
             self.c[(f.f_code.co_filename, f.f_lineno)] = 1
             for c in self.cstack:
                 c[(f.f_code.co_filename, f.f_lineno)] = 1
         return self.t
-    
+
     def help(self, error=None):
         if error:
             print(error)
@@ -301,7 +305,7 @@ class coverage:
             '-r': 'report',
             '-x': 'execute',
             '-o': 'omit=',
-            }
+        }
         short_opts = string.join([o[1:] for o in list(optmap.keys())], '')
         long_opts = list(optmap.values())
         options, args = getopt.getopt(sys.argv[1:], short_opts, long_opts)
@@ -331,7 +335,7 @@ class coverage:
             self.help("You must specify at least one of -e, -x, -r, or -a.")
         if not args_needed and args:
             self.help("Unexpected arguments %s." % args)
-        
+
         self.get_ready()
         self.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
 
@@ -344,7 +348,8 @@ class coverage:
             self.start()
             import __main__
             sys.path[0] = os.path.dirname(sys.argv[0])
-            exec(compile(open(sys.argv[0]).read(), sys.argv[0], 'exec'), __main__.__dict__)
+            exec(compile(open(sys.argv[0]).read(),
+                         sys.argv[0], 'exec'), __main__.__dict__)
         if not args:
             args = list(self.cexecuted.keys())
         ignore_errors = settings.get('ignore-errors')
@@ -363,24 +368,24 @@ class coverage:
 
     def use_cache(self, usecache):
         self.usecache = usecache
-        
+
     def get_ready(self):
         if self.usecache and not self.cache:
             self.cache = os.environ.get(self.cache_env, self.cache_default)
             self.restore()
         self.analysis_cache = {}
-        
+
     def start(self):
         self.get_ready()
-        if self.nesting == 0:                               #pragma: no cover
+        if self.nesting == 0:  # pragma: no cover
             sys.settrace(self.t)
             if hasattr(threading, 'settrace'):
                 threading.settrace(self.t)
         self.nesting += 1
-        
+
     def stop(self):
         self.nesting -= 1
-        if self.nesting == 0:                               #pragma: no cover
+        if self.nesting == 0:  # pragma: no cover
             sys.settrace(None)
             if hasattr(threading, 'settrace'):
                 threading.settrace(None)
@@ -401,7 +406,7 @@ class coverage:
     def begin_recursive(self):
         self.cstack.append(self.c)
         self.xstack.append(self.exclude_re)
-        
+
     def end_recursive(self):
         self.c = self.cstack.pop()
         self.exclude_re = self.xstack.pop()
@@ -453,7 +458,7 @@ class coverage:
             self.canonical_filename_cache[filename] = cf
         return self.canonical_filename_cache[filename]
 
-    # canonicalize_filenames().  Copy results from "c" to "cexecuted", 
+    # canonicalize_filenames().  Copy results from "c" to "cexecuted",
     # canonicalizing filenames on the way.  Clear the "c" map.
 
     def canonicalize_filenames(self):
@@ -489,34 +494,35 @@ class coverage:
         if ext == '.pyc':
             if not os.path.exists(filename[0:-1]):
                 raise self.error("No source for compiled code '%s'."
-                                   % filename)
+                                 % filename)
             filename = filename[0:-1]
         elif ext != '.py':
             raise self.error("File '%s' not Python source." % filename)
         source = open(filename, 'r')
         lines, excluded_lines = self.find_executable_statements(
             source.read(), exclude=self.exclude_re
-            )
+        )
         source.close()
         result = filename, lines, excluded_lines
         self.analysis_cache[morf] = result
         return result
 
     def get_suite_spots(self, tree, spots):
-        import symbol, token
+        import symbol
+        import token
         for i in range(1, len(tree)):
             if type(tree[i]) == type(()):
                 if tree[i][0] == symbol.suite:
                     # Found a suite, look back for the colon and keyword.
                     lineno_colon = lineno_word = None
-                    for j in range(i-1, 0, -1):
+                    for j in range(i - 1, 0, -1):
                         if tree[j][0] == token.COLON:
                             lineno_colon = tree[j][2]
                         elif tree[j][0] == token.NAME:
                             if tree[j][1] == 'elif':
                                 # Find the line number of the first non-terminal
                                 # after the keyword.
-                                t = tree[j+1]
+                                t = tree[j + 1]
                                 while t and token.ISNONTERMINAL(t[0]):
                                     t = t[1]
                                 if t:
@@ -533,7 +539,7 @@ class coverage:
                     if lineno_colon and lineno_word:
                         # Found colon and keyword, mark all the lines
                         # between the two with the two line numbers.
-                        for l in range(lineno_word, lineno_colon+1):
+                        for l in range(lineno_word, lineno_colon + 1):
                             spots[l] = (lineno_word, lineno_colon)
                 self.get_suite_spots(tree[i], spots)
 
@@ -546,16 +552,16 @@ class coverage:
             lines = text.split('\n')
             for i in range(len(lines)):
                 if reExclude.search(lines[i]):
-                    excluded[i+1] = 1
+                    excluded[i + 1] = 1
 
         import parser
-        tree = parser.suite(text+'\n\n').totuple(1)
+        tree = parser.suite(text + '\n\n').totuple(1)
         self.get_suite_spots(tree, suite_spots)
-            
+
         # Use the compiler module to parse the text and find the executable
         # statements.  We add newlines to be impervious to final partial lines.
         statements = {}
-        ast = compiler.parse(text+'\n\n')
+        ast = compiler.parse(text + '\n\n')
         visitor = StatementFindingAstVisitor(statements, excluded, suite_spots)
         compiler.walk(ast, visitor, walker=visitor)
 
@@ -590,6 +596,7 @@ class coverage:
             i = i + 1
         if start:
             pairs.append((start, end))
+
         def stringify(pair):
             start, end = pair
             if start == end:
@@ -651,7 +658,8 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         morfs.sort(self.morf_name_compare)
 
-        max_name = max([5,] + list(map(len, list(map(self.morf_name, morfs)))))
+        max_name = max(
+            [5, ] + list(map(len, list(map(self.morf_name, morfs)))))
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"
@@ -668,7 +676,7 @@ class coverage:
         for morf in morfs:
             name = self.morf_name(morf)
             try:
-                _, statements, _, missing, readable  = self.analysis2(morf)
+                _, statements, _, missing, readable = self.analysis2(morf)
                 n = len(statements)
                 m = n - len(missing)
                 if n > 0:
@@ -681,7 +689,7 @@ class coverage:
                 print(fmt_coverage % args, file=file)
                 total_statements = total_statements + n
                 total_executed = total_executed + m
-            except KeyboardInterrupt:                       #pragma: no cover
+            except KeyboardInterrupt:  # pragma: no cover
                 raise
             except:
                 if not ignore_errors:
@@ -707,14 +715,16 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         for morf in morfs:
             try:
-                filename, statements, excluded, missing, _ = self.analysis2(morf)
-                self.annotate_file(filename, statements, excluded, missing, directory)
+                filename, statements, excluded, missing, _ = self.analysis2(
+                    morf)
+                self.annotate_file(filename, statements,
+                                   excluded, missing, directory)
             except KeyboardInterrupt:
                 raise
             except:
                 if not ignore_errors:
                     raise
-                
+
     def annotate_file(self, filename, statements, excluded, missing, directory=None):
         source = open(filename, 'r')
         if directory:
@@ -742,7 +752,7 @@ class coverage:
             if self.blank_re.match(line):
                 dest.write('  ')
             elif self.else_re.match(line):
-                # Special logic for lines containing only 'else:'.  
+                # Special logic for lines containing only 'else:'.
                 # See [GDR 2001-12-04b, 3.2].
                 if i >= len(statements) and j >= len(missing):
                     dest.write('! ')
@@ -762,22 +772,49 @@ class coverage:
         source.close()
         dest.close()
 
+
 # Singleton object.
 the_coverage = coverage()
 
 # Module functions call methods in the singleton object.
+
+
 def use_cache(*args, **kw): return the_coverage.use_cache(*args, **kw)
+
+
 def start(*args, **kw): return the_coverage.start(*args, **kw)
+
+
 def stop(*args, **kw): return the_coverage.stop(*args, **kw)
+
+
 def erase(*args, **kw): return the_coverage.erase(*args, **kw)
-def begin_recursive(*args, **kw): return the_coverage.begin_recursive(*args, **kw)
+
+
+def begin_recursive(
+    *args, **kw): return the_coverage.begin_recursive(*args, **kw)
+
+
 def end_recursive(*args, **kw): return the_coverage.end_recursive(*args, **kw)
+
+
 def exclude(*args, **kw): return the_coverage.exclude(*args, **kw)
+
+
 def analysis(*args, **kw): return the_coverage.analysis(*args, **kw)
+
+
 def analysis2(*args, **kw): return the_coverage.analysis2(*args, **kw)
+
+
 def report(*args, **kw): return the_coverage.report(*args, **kw)
+
+
 def annotate(*args, **kw): return the_coverage.annotate(*args, **kw)
+
+
 def annotate_file(*args, **kw): return the_coverage.annotate_file(*args, **kw)
+
 
 # Save coverage data when Python exits.  (The atexit module wasn't
 # introduced until Python 2.0, so use sys.exitfunc when it's not
@@ -851,7 +888,7 @@ if __name__ == '__main__':
 # Thanks, Allen.
 #
 # 2005-12-02 NMB Call threading.settrace so that all threads are measured.
-# Thanks Martin Fuzzey. Add a file argument to report so that reports can be 
+# Thanks Martin Fuzzey. Add a file argument to report so that reports can be
 # captured to a different destination.
 #
 # 2005-12-03 NMB coverage.py can now measure itself.

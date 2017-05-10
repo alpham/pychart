@@ -26,15 +26,19 @@ try:
 except:
     _zlib_available_p = False
 
+
 class pdf_stream(object):
     def __init__(self, fp):
         self.fp = fp
         self.off = 0
-    def write(self, str):
-        self.fp.write(str)
-        self.off += len(str)
+
+    def write(self, str_):
+        self.fp.write(str_.encode())
+        self.off += len(str_)
+
     def tell(self):
         return self.off
+
 
 class T(basecanvas.T):
     def __init__(self, fname, compress_p):
@@ -54,9 +58,10 @@ class T(basecanvas.T):
         self.__lines = []
         self.__nr_gsave = 0
 
-	if compress_p and not _zlib_available_p:
-	    pychart_util.warn('Zlib not available. Compression request ignored.\n')
-	    compress_p = 0
+        if compress_p and not _zlib_available_p:
+            pychart_util.warn(
+                'Zlib not available. Compression request ignored.\n')
+            compress_p = 0
         self.__compress_p = compress_p
 
     def __register_font(self, name):
@@ -75,15 +80,16 @@ class T(basecanvas.T):
 
     def __define_stream_obj(self, fp, s):
         if self.__compress_p:
-            p = zlib.compress(s)
+            p = zlib.compress(s.encode())
             return self.__define_obj(fp, "<</Length %d/Filter/FlateDecode>>\nstream\n%sendstream"
-                              % (len(p), p))
+                                     % (len(p), p))
         else:
             return self.__define_obj(fp, "<</Length %d\n>>\nstream\n%s\nendstream"
-                              % (len(s), s))
+                                     % (len(s), s))
 
     def __define_font_obj(self, fp, name, font_id):
-        obj_id = self.__define_obj(fp, """<</Type/Font /Subtype/Type1 /Name/F%d /BaseFont/%s /Encoding/MacRomanEncoding>>""" % (font_id, name))
+        obj_id = self.__define_obj(
+            fp, """<</Type/Font /Subtype/Type1 /Name/F%d /BaseFont/%s /Encoding/MacRomanEncoding>>""" % (font_id, name))
         return obj_id
 
     def __reset_context(self):
@@ -96,6 +102,7 @@ class T(basecanvas.T):
 
     def newpath(self):
         pass
+
     def set_fill_color(self, color):
         if self.__fill_color == color:
             return
@@ -106,26 +113,28 @@ class T(basecanvas.T):
             self.__write("%f %f %f rg\n" % (color.r, color.g, color.b))
             self.__write("%f %f %f RG\n" % (color.r, color.g, color.b))
         self.__fill_color = color
+
     def set_stroke_color(self, color):
         self.set_fill_color(color)
         return
 
     def __arcsub(self, x, y, radius, start, theta):
-	xcos = math.cos(basecanvas.to_radian(theta))
-	xsin = math.sin(basecanvas.to_radian(theta))
-	x0 = radius * xcos
-	y0 = radius * xsin
- 	x1 = radius * (4-xcos)/3.0
- 	y1 = radius * (1-xcos)*(xcos-3)/(3*xsin)
+        xcos = math.cos(basecanvas.to_radian(theta))
+        xsin = math.sin(basecanvas.to_radian(theta))
+        x0 = radius * xcos
+        y0 = radius * xsin
+        x1 = radius * (4 - xcos) / 3.0
+        y1 = radius * (1 - xcos) * (xcos - 3) / (3 * xsin)
 
-        xx0, xy0 = pychart_util.rotate(x0, y0, start+theta)
-        xx1, xy1 = pychart_util.rotate(x1, -y1, start+theta)
-        xx2, xy2 = pychart_util.rotate(x1, y1, start+theta)
-	self.__write("%f %f %f %f %f %f c\n" %
-		(x+xx1, y+xy1, x+xx2, y+xy2, x+xx0, y+xy0))
+        xx0, xy0 = pychart_util.rotate(x0, y0, start + theta)
+        xx1, xy1 = pychart_util.rotate(x1, -y1, start + theta)
+        xx2, xy2 = pychart_util.rotate(x1, y1, start + theta)
+        self.__write("%f %f %f %f %f %f c\n" %
+                     (x + xx1, y + xy1, x + xx2, y + xy2, x + xx0, y + xy0))
+
     def path_arc(self, x, y, radius, ratio, start, end):
         self.comment("PATHARC %f %f %f %f %f %f\n"
-        	     % (x, y, radius, ratio, start, end))
+                     % (x, y, radius, ratio, start, end))
         step = 10
         if radius < 10:
             step = 20
@@ -135,15 +144,15 @@ class T(basecanvas.T):
             self.push_transformation((x, y), (1, ratio), None)
             deg = start
             while deg < end:
-                theta = min(step, end-deg)
-                self.__arcsub(x, y, radius, deg, theta/2)
+                theta = min(step, end - deg)
+                self.__arcsub(x, y, radius, deg, theta / 2)
                 deg += theta
             self.pop_transformation()
         else:
             deg = start
             while deg < end:
-                theta = min(step, end-deg)
-                self.__arcsub(x, y, radius, deg, theta/2)
+                theta = min(step, end - deg)
+                self.__arcsub(x, y, radius, deg, theta / 2)
                 deg += theta
         self.comment("end PATHARC\n")
 
@@ -154,23 +163,26 @@ class T(basecanvas.T):
 
     def text_end(self):
         self.__write("ET\n")
+
     def text_moveto(self, x, y, angle):
-	if angle != None:
-	    xcos = math.cos(basecanvas.to_radian(angle))
-	    xsin = math.sin(basecanvas.to_radian(angle))
-	    self.__write("%f %f %f %f %f %f Tm " % (xcos, xsin, -xsin, xcos, x, y))
-	else:
-	    self.__write("1 0 0 1 %f %f Tm " % (x, y))
+        if angle != None:
+            xcos = math.cos(basecanvas.to_radian(angle))
+            xsin = math.sin(basecanvas.to_radian(angle))
+            self.__write("%f %f %f %f %f %f Tm " %
+                         (xcos, xsin, -xsin, xcos, x, y))
+        else:
+            self.__write("1 0 0 1 %f %f Tm " % (x, y))
 
     def text_show(self, font_name, font_size, color, str):
-        if self.__font_name  != font_name or self.__font_size != font_size:
-            self.__write("/F%d %d Tf " % (self.__register_font(font_name), font_size))
+        if self.__font_name != font_name or self.__font_size != font_size:
+            self.__write("/F%d %d Tf " %
+                         (self.__register_font(font_name), font_size))
             self.__font_name = font_name
             self.__font_size = font_size
         self.set_fill_color(color)
         self.__write("(%s) Tj " % (str.encode('mac_roman')))
 
-    def push_transformation(self, baseloc, scale, angle, in_text = 0):
+    def push_transformation(self, baseloc, scale, angle, in_text=0):
         if in_text:
             op = "Tm"
         else:
@@ -178,7 +190,7 @@ class T(basecanvas.T):
             self.gsave()
 
         if baseloc == None:
-            baseloc = (0,0)
+            baseloc = (0, 0)
 
         if angle != None:
             radian = basecanvas.to_radian(angle)
@@ -191,25 +203,32 @@ class T(basecanvas.T):
                                                    baseloc[0],
                                                    baseloc[1], op))
 
-    def pop_transformation(self, in_text = 0):
+    def pop_transformation(self, in_text=0):
         if not in_text:
             self.grestore()
+
     def closepath(self):
         self.__write("h\n")
+
     def clip_sub(self):
         self.__write("W n\n")
+
     def fill(self):
         self.__write("f n\n")
+
     def gsave(self):
         self.__write("q\n")
+
     def grestore(self):
         self.__write("Q\n")
         self.__reset_context()
 
     def moveto(self, x, y):
         self.__write('%f %f m ' % (x, y))
+
     def lineto(self, x, y):
         self.__write("%f %f l\n" % (x, y))
+
     def stroke(self):
         self.__write("S\n")
 
@@ -239,8 +258,8 @@ class T(basecanvas.T):
 
     def close(self):
         basecanvas.T.close(self)
-	if self.__lines == []:
-	    return
+        if self.__lines == []:
+            return
 
         _fp, need_close = self.open_output(self.__out_fname)
         fp = pdf_stream(_fp)
@@ -254,7 +273,8 @@ class T(basecanvas.T):
             obj_id = self.__define_font_obj(fp, font_name, font_id)
             fontstr += "/F%d %d 0 R " % (font_id, obj_id)
 
-        pages_obj_id = self.__define_obj(fp, " <</Type/Pages /Kids [%d 0 R] /Count 1 >>" % (self.__next_obj_id + 1))
+        pages_obj_id = self.__define_obj(
+            fp, " <</Type/Pages /Kids [%d 0 R] /Count 1 >>" % (self.__next_obj_id + 1))
 
         bbox = theme.adjust_bounding_box([xscale(self.__xmin), yscale(self.__ymin),
                                           xscale(self.__xmax), yscale(self.__ymax)])
@@ -268,7 +288,8 @@ class T(basecanvas.T):
 >> >>""" % (pages_obj_id, stream_obj_id,
             bbox[0], bbox[1], bbox[2], bbox[3], fontstr))
 
-        info_str = "/Producer (%s)\n/CreationDate (%s)" % (self.creator, self.creation_date)
+        info_str = "/Producer (%s)\n/CreationDate (%s)" % (self.creator,
+                                                           self.creation_date)
 
         if self.title:
             info_str += "\n/Title (%s)" % (self.title, )
@@ -276,16 +297,18 @@ class T(basecanvas.T):
             info_str += "\n/Author (%s)" % (self.author, )
 
         info_obj_id = self.__define_obj(fp, """<<%s>>""" % info_str)
-        catalog_obj_id = self.__define_obj(fp, """  <</Type/Catalog/Pages %d 0 R>>""" % (pages_obj_id))
+        catalog_obj_id = self.__define_obj(
+            fp, """  <</Type/Catalog/Pages %d 0 R>>""" % (pages_obj_id))
 
         xref_offset = fp.tell()
-        fp.write("xref\n0 %d\n" % (len(self.__obj_offsets)+1))
+        fp.write("xref\n0 %d\n" % (len(self.__obj_offsets) + 1))
         fp.write("0000000000 65535 f \n")
         id = 1
         while id <= len(self.__obj_offsets):
             fp.write("%010d 00000 n \n" % (self.__obj_offsets[id]))
             id += 1
-        fp.write("trailer << /Size %d /Root %d 0 R /Info %d 0 R\n>>\n" % (len(self.__obj_offsets)+1, catalog_obj_id, info_obj_id))
+        fp.write("trailer << /Size %d /Root %d 0 R /Info %d 0 R\n>>\n" %
+                 (len(self.__obj_offsets) + 1, catalog_obj_id, info_obj_id))
         fp.write("startxref\n%d\n%%%%EOF\n" % xref_offset)
 
         if need_close:
