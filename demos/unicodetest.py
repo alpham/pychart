@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Pychart is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -17,12 +17,14 @@
 from pychart import *
 can = canvas.default_canvas()
 x, y = (100, 500)
+
+
 def show_text(str):
     global x, y
     can.show(x, y, str)
     can.show(x + 200, y, "/12/C" + font.quotemeta(str))
     y -= 20
 
+
 show_text(str('Zürich', 'utf-8'))
 show_text(str('X äöü Y', 'utf-8'))
-

@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2000-2005 by Yasushi Saito (yasushi.saito@gmail.com)
-# 
+#
 # Pychart is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
@@ -21,20 +21,22 @@ can = canvas.default_canvas()
 x = 100
 y = 500
 
+
 def drawLine(style):
     global x, y
     name = pychart.doc_support.stringify_value(style)
     name = re.sub("line_style\\.", "", name)
     name = pychart.doc_support.break_string(name)
-    can.line(style, x, y, x+40, y)
-    #print "name=", name
+    can.line(style, x, y, x + 40, y)
+    # print "name=", name
     height = font.text_height(name)[0] + 5
-    tb = text_box.T(text=name, loc=(x, y-height), line_style=None)
+    tb = text_box.T(text=name, loc=(x, y - height), line_style=None)
     x = x + 60
     tb.draw()
+
 
 for style in line_style.standards.list():
     drawLine(style)
     if x >= chartdemo.MaxWidth:
-        x=100
-        y=y-40
+        x = 100
+        y = y - 40

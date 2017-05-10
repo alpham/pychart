@@ -25,27 +25,28 @@ from .scaling import *
 class T(chart_object.T):
     __doc__ = range_plot_doc.doc
     keys = {
-        "data" : (AnyType, None, pychart_util.data_desc),
+        "data": (AnyType, None, pychart_util.data_desc),
         "label": (str, "???", pychart_util.label_desc),
-        "xcol" : (int, 0, pychart_util.xcol_desc),
+        "xcol": (int, 0, pychart_util.xcol_desc),
         "min_col": (int, 1,
-                   "The lower bound of the sweep is extracted from "
-                   + "this column of data."),
+                    "The lower bound of the sweep is extracted from "
+                    + "this column of data."),
         "max_col": (int, 2,
-                   "The upper bound of the sweep is extracted from "
-                   + "this column of data."),
+                    "The upper bound of the sweep is extracted from "
+                    + "this column of data."),
         "line_style": (line_style.T, line_style.default,
-                      "The style of the boundary line."),
+                       "The style of the boundary line."),
         "fill_style": (fill_style.T, fill_style.default,
-                      ""),
-        }
+                       ""),
+    }
 
-##AUTOMATICALLY GENERATED
+# AUTOMATICALLY GENERATED
 
-##END AUTOMATICALLY GENERATED
+# END AUTOMATICALLY GENERATED
 
     def check_integrity(self):
         chart_object.T.check_integrity(self)
+
     def get_data_range(self, which):
         if which == 'X':
             return pychart_util.get_data_range(self.data, self.xcol)
@@ -53,6 +54,7 @@ class T(chart_object.T):
             ymax = (pychart_util.get_data_range(self.data, self.max_col))[1]
             ymin = (pychart_util.get_data_range(self.data, self.min_col))[0]
             return (ymin, ymax)
+
     def get_legend_entry(self):
         if self.label:
             return legend.Entry(line_style=self.line_style,
@@ -64,10 +66,10 @@ class T(chart_object.T):
 
         prevPair = None
 
-        xmin=999999
-        xmax=-999999
-        ymin=999999
-        ymax=-999999
+        xmin = 999999
+        xmax = -999999
+        ymin = 999999
+        ymax = -999999
 
         # Draw the boundary in a single stroke.
         can.gsave()
@@ -88,7 +90,7 @@ class T(chart_object.T):
                 can.moveto(xscale(ar.x_pos(x)), yscale(ar.y_pos(y)))
             prevPair = pair
 
-        for i in range(len(self.data)-1, -1, -1):
+        for i in range(len(self.data) - 1, -1, -1):
             pair = self.data[i]
             x = pair[self.xcol]
             y = pychart_util.get_sample_val(pair, self.min_col)

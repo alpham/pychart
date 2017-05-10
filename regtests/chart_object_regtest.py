@@ -4,6 +4,7 @@ import unittest
 sys.path.append('..')
 from pychart import *
 
+
 class TestChartObject(unittest.TestCase):
 
     def test(self):
@@ -24,5 +25,7 @@ class TestChartObject(unittest.TestCase):
 
     def runTest(self):
         self.test()
+
+
 if __name__ == '__main__':
     unittest.main()

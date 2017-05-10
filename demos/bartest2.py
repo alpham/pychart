@@ -18,8 +18,8 @@ data = [(10, 20, 3.0), (20, 65, 2.5),
         (30, 55, 5.0), (40, 45, 3.0), (50, 25, 2.0)]
 
 ar = area.T(x_axis=axis.X(label="X", format="/a-30{}%d", tic_interval=20),
-            y_axis = axis.Y())
+            y_axis=axis.Y())
 ar.add_plot(bar_plot.T(data=data,
-                       line_style=None, fill_style = fill_style.gray50,
-                       error_bar = error_bar.bar2, error_minus_col=2))
+                       line_style=None, fill_style=fill_style.gray50,
+                       error_bar=error_bar.bar2, error_minus_col=2))
 ar.draw()

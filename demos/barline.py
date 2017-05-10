@@ -15,14 +15,14 @@ from pychart import *
 theme.get_options()
 
 data = [(10, 20, 30), (20, 65, 33),
-	(30, 55, 30), (40, 45, 51),
-	(50, 25, 27), (60, 75, 30)]
+        (30, 55, 30), (40, 45, 51),
+        (50, 25, 27), (60, 75, 30)]
 
-ar = area.T(size = (150,120),
+ar = area.T(size=(150, 120),
             y_grid_interval=10,
-            x_axis=axis.X(label="X label", label_offset=(0,-7)),
+            x_axis=axis.X(label="X label", label_offset=(0, -7)),
             y_axis=axis.Y(label="Y label"),
-            legend = legend.T(), y_range = (0, None))
+            legend=legend.T(), y_range=(0, None))
 
 ar.add_plot(bar_plot.T(label="foo", data=data),
             line_plot.T(label="bar", data=data, ycol=2))

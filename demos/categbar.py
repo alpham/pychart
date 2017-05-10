@@ -15,8 +15,8 @@ from pychart import *
 theme.get_options()
 data = [["Jan", 10], ["Feb", 22], ["Mar", 30]]
 
-ar = area.T(x_coord = category_coord.T(data, 0), y_range = (0, None),
-            x_axis = axis.X(label="Month"),
-            y_axis = axis.Y(label="Value"))
-ar.add_plot(bar_plot.T(data = data, label = "Something"))
+ar = area.T(x_coord=category_coord.T(data, 0), y_range=(0, None),
+            x_axis=axis.X(label="Month"),
+            y_axis=axis.Y(label="Value"))
+ar.add_plot(bar_plot.T(data=data, label="Something"))
 ar.draw()
